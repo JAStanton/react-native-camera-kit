@@ -511,19 +511,19 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 capturedImage = [UIImage imageWithCGImage:imageRef scale:capturedImage.scale orientation:UIImageOrientationUp];
                 imageData = UIImageJPEGRepresentation(capturedImage, 0.85f);
                 
-                [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                    if ( status == PHAuthorizationStatusAuthorized ) {
-                        
-                        NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
-                        
-                        NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
-                        if (temporaryFileURL) {
-                            imageInfoDict[@"uri"] = temporaryFileURL.description;
-                            imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
-                        }
-                        imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
-                        
-                        if (shouldSaveToCameraRoll) {
+                if (shouldSaveToCameraRoll) {
+                    [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
+                        if ( status == PHAuthorizationStatusAuthorized ) {
+                            
+                            NSMutableDictionary *imageInfoDict = [[NSMutableDictionary alloc] init];
+                            
+                            NSURL *temporaryFileURL = [CKCamera saveToTmpFolder:imageData];
+                            if (temporaryFileURL) {
+                                imageInfoDict[@"uri"] = temporaryFileURL.description;
+                                imageInfoDict[@"name"] = temporaryFileURL.lastPathComponent;
+                            }
+                            imageInfoDict[@"size"] = [NSNumber numberWithInteger:imageData.length];
+                            
                             NSData *compressedImageData = UIImageJPEGRepresentation(capturedImage, 1.0f);
                             
                             [CKGalleryManager saveImageToCameraRoll:compressedImageData temporaryFileURL:temporaryFileURL block:^(BOOL success) {
@@ -541,11 +541,11 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                                     //NSLog( @"Could not save to camera roll");
                                 }
                             }];
-                        } else if (block) {
-                            block(imageInfoDict);
                         }
-                    }
-                }];
+                    }];
+                } else if (block) {
+                    block(imageInfoDict);
+                }
                 
                 CGImageRelease(imageRef);
             }
