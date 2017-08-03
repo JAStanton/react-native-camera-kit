@@ -533,6 +533,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                             block(imageInfoDict);
                         }
                     }];
+                } else if (block) {
+                    block(imageInfoDict);
                 }
 
                 CGImageRelease(imageRef);
